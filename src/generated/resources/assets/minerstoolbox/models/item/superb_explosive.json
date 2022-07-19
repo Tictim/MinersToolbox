@@ -1,0 +1,6 @@
+{
+  "parent": "minerstoolbox:item/explosive_template",
+  "textures": {
+    "texture": "minerstoolbox:block/explosives/superb"
+  }
+}

@@ -1,0 +1,8 @@
+{
+	"detonator": {
+		"category": "master",
+		"sounds": [
+			"minerstoolbox:detonator"
+		]
+	}
+}

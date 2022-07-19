@@ -1,0 +1,6 @@
+{
+  "parent": "minerstoolbox:block/explosive_template",
+  "textures": {
+    "texture": "minerstoolbox:block/explosives/crude"
+  }
+}

@@ -1,0 +1,26 @@
+{
+	"itemGroup.minerstoolbox": "Miner's Toolbox",
+
+	"block.minerstoolbox.crude_explosive": "Crude Explosive",
+	"block.minerstoolbox.improved_explosive": "Improved Explosive",
+	"block.minerstoolbox.enhanced_explosive": "Enhanced Explosive",
+	"block.minerstoolbox.superb_explosive": "Superb Explosive",
+	"block.minerstoolbox.supercalifragilisticexpialidocious_explosive": "Supercalifragilisticexpialidocious Explosive",
+
+	"block.minerstoolbox.explosive.tooltip.max_resistance": "Max Resistance: %s",
+	"block.minerstoolbox.explosive.tooltip.force": "Force: %s",
+	"block.minerstoolbox.explosive.tooltip.explosion_radius": "Explosion Radius: %s",
+
+	"item.minerstoolbox.detonator": "Detonator",
+	"item.minerstoolbox.detonator.tooltip.1": "Right click on an explosive to mark it",
+	"item.minerstoolbox.detonator.tooltip.2": "SHIFT+Use to blow them all up!",
+	"item.minerstoolbox.detonator.msg.marked": "Marked an explosive (%s total explosives)",
+	"item.minerstoolbox.terrain_inspector": "Terrain Inspector",
+	"item.minerstoolbox.terrain_inspector.tooltip": "Shows explosion resistance of blocks.",
+	"item.minerstoolbox.terrain_inspector.overlay": "Explosion Resistance: %s (%s)",
+	"item.minerstoolbox.terrain_inspector.overlay.tier.crude": "Crude",
+	"item.minerstoolbox.terrain_inspector.overlay.tier.improved": "Improved",
+	"item.minerstoolbox.terrain_inspector.overlay.tier.enhanced": "Enhanced",
+	"item.minerstoolbox.terrain_inspector.overlay.tier.superb": "Superb",
+	"item.minerstoolbox.terrain_inspector.overlay.tier.unbreakable": "Unbreakable"
+}
