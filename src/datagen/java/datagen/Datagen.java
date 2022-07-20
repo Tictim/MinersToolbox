@@ -17,6 +17,7 @@ public class Datagen{
 		ExistingFileHelper ex = event.getExistingFileHelper();
 		if(event.includeServer()){
 			gen.addProvider(new LootGen(gen));
+			gen.addProvider(new RecipeGen(gen));
 		}
 		if(event.includeClient()){
 			gen.addProvider(new BlockStateGen(gen, ex));

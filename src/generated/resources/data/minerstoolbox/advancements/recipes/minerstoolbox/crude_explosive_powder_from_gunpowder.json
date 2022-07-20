@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "minerstoolbox:crude_explosive_powder_from_gunpowder"
+    ]
+  },
+  "criteria": {
+    "a": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:gunpowder"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "minerstoolbox:crude_explosive_powder_from_gunpowder"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "a",
+      "has_the_recipe"
+    ]
+  ]
+}

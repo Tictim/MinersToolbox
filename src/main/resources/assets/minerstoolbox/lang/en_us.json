@@ -10,6 +10,7 @@
 	"block.minerstoolbox.explosive.tooltip.max_resistance": "Max Resistance: %s",
 	"block.minerstoolbox.explosive.tooltip.force": "Force: %s",
 	"block.minerstoolbox.explosive.tooltip.explosion_radius": "Explosion Radius: %s",
+	"block.minerstoolbox.explosive.tooltip.destroy_drop": "Can destroy block drops",
 
 	"item.minerstoolbox.detonator": "Detonator",
 	"item.minerstoolbox.detonator.tooltip.1": "Right click on an explosive to mark it",
@@ -22,5 +23,10 @@
 	"item.minerstoolbox.terrain_inspector.overlay.tier.improved": "Improved",
 	"item.minerstoolbox.terrain_inspector.overlay.tier.enhanced": "Enhanced",
 	"item.minerstoolbox.terrain_inspector.overlay.tier.superb": "Superb",
-	"item.minerstoolbox.terrain_inspector.overlay.tier.unbreakable": "Unbreakable"
+	"item.minerstoolbox.terrain_inspector.overlay.tier.unbreakable": "Unbreakable",
+
+	"item.minerstoolbox.crude_explosive_powder": "Crude Explosive Powder",
+	"item.minerstoolbox.enhanced_explosive_powder": "Enhanced Explosive Powder",
+	"item.minerstoolbox.superb_explosive_powder": "Superb Explosive Powder",
+	"item.minerstoolbox.supercalifragilisticexpialidocious_explosive_powder": "Supercalifragilisticexpialidocious Explosive Powder"
 }

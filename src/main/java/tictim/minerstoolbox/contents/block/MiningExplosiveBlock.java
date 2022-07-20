@@ -1,6 +1,5 @@
 package tictim.minerstoolbox.contents.block;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -41,8 +40,7 @@ import tictim.minerstoolbox.contents.entity.ExplosiveEntity;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static net.minecraft.ChatFormatting.DARK_AQUA;
-import static net.minecraft.ChatFormatting.YELLOW;
+import static net.minecraft.ChatFormatting.*;
 
 // TODO how do I swap models on april fools? I have no goddamn idea
 @SuppressWarnings("deprecation")
@@ -180,13 +178,15 @@ public abstract class MiningExplosiveBlock extends FaceAttachedHorizontalDirecti
 	}
 
 	@Override public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag){
-		ExplosionStat explosionStat = getExplosionStat();
+		ExplosionStat stat = getExplosionStat();
 		tooltip.add(new TranslatableComponent("block.minerstoolbox.explosive.tooltip.max_resistance",
-				new TextComponent(""+explosionStat.maxResistance()).withStyle(YELLOW)).withStyle(DARK_AQUA));
+				new TextComponent(""+stat.maxResistance()).withStyle(YELLOW)).withStyle(DARK_AQUA));
 		tooltip.add(new TranslatableComponent("block.minerstoolbox.explosive.tooltip.force",
-				new TextComponent(""+explosionStat.force()).withStyle(YELLOW)).withStyle(DARK_AQUA));
+				new TextComponent(""+stat.force()).withStyle(YELLOW)).withStyle(DARK_AQUA));
 		tooltip.add(new TranslatableComponent("block.minerstoolbox.explosive.tooltip.explosion_radius",
-				new TextComponent(""+explosionStat.explosionRadius()).withStyle(YELLOW)).withStyle(DARK_AQUA));
+				new TextComponent(""+stat.explosionRadius()).withStyle(YELLOW)).withStyle(DARK_AQUA));
+		if(stat.destroyDrop())
+			tooltip.add(new TranslatableComponent("block.minerstoolbox.explosive.tooltip.destroy_drop").withStyle(RED));
 	}
 
 	private void explode(Level level, BlockPos pos, @Nullable LivingEntity igniter, int fuse){

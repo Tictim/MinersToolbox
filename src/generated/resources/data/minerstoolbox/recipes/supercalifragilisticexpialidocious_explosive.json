@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "item": "minerstoolbox:supercalifragilisticexpialidocious_explosive_powder"
+    },
+    {
+      "item": "minecraft:poisonous_potato"
+    }
+  ],
+  "result": {
+    "item": "minerstoolbox:supercalifragilisticexpialidocious_explosive"
+  }
+}

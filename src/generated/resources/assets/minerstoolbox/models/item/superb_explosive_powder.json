@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minerstoolbox:item/superb_explosive_powder"
+  }
+}

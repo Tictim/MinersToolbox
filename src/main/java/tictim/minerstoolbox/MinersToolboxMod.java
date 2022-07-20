@@ -11,7 +11,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import tictim.minerstoolbox.client.ExplosiveEntityRenderer;
 import tictim.minerstoolbox.client.MaterialInspectorOverlay;
@@ -45,11 +44,7 @@ public class MinersToolboxMod{
 		Contents.ITEMS.register(bus);
 		Contents.ENTITIES.register(bus);
 		Contents.SOUND_EVENTS.register(bus);
-	}
-
-	@SubscribeEvent
-	public static void setup(FMLCommonSetupEvent event){
-
+		MinersToolboxNetwork.register();
 	}
 
 	@SubscribeEvent

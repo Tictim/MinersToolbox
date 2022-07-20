@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "minerstoolbox:item/terrain_inspector"
+  }
+}

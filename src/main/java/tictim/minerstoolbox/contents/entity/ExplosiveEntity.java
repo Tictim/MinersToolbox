@@ -102,8 +102,7 @@ public abstract class ExplosiveEntity extends Entity{
 		if(i<=0){
 			this.discard();
 			if(!this.level.isClientSide){
-				//level.explode(this.owner, getX(), getY(), getZ(), this.getExplosionStat().explosionRadius(), Explosion.BlockInteraction.BREAK);
-				new PropagatingExploder(level, blockPosition(), getExplosionStat(), this, false)
+				new PropagatingExploder(level, blockPosition(), getExplosionStat(), this)
 						.fuckingExplode();
 			}
 		}else{
