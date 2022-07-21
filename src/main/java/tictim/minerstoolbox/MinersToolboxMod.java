@@ -12,6 +12,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tictim.minerstoolbox.client.ExplosiveEntityRenderer;
 import tictim.minerstoolbox.client.MaterialInspectorOverlay;
 import tictim.minerstoolbox.contents.Contents;
@@ -21,6 +23,7 @@ import tictim.minerstoolbox.contents.item.DetonatorItem;
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class MinersToolboxMod{
 	public static final String MODID = "minerstoolbox";
+	public static final Logger LOGGER = LogManager.getLogger("MinersToolbox");
 
 	//private static Boolean aprilFools;
 //
