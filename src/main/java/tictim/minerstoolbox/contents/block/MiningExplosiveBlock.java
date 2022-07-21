@@ -18,9 +18,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
@@ -29,6 +31,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -38,12 +42,15 @@ import tictim.minerstoolbox.config.ExplosionStats;
 import tictim.minerstoolbox.contents.entity.ExplosiveEntity;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 import static net.minecraft.ChatFormatting.*;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
 // TODO how do I swap models on april fools? I have no goddamn idea
 @SuppressWarnings("deprecation")
+@ParametersAreNonnullByDefault
 public abstract class MiningExplosiveBlock extends FaceAttachedHorizontalDirectionalBlock{
 	// horizontal direction (4) * attach face (3) * april fools shit (2)
 	private static final VoxelShape[] shapes = new VoxelShape[24];
@@ -102,18 +109,23 @@ public abstract class MiningExplosiveBlock extends FaceAttachedHorizontalDirecti
 
 	public MiningExplosiveBlock(Properties p){
 		super(p);
+		this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
 	}
 
+	@Nullable @Override public BlockState getStateForPlacement(BlockPlaceContext ctx){
+		BlockState stateForPlacement = super.getStateForPlacement(ctx);
+		if(stateForPlacement==null) return null;
+		FluidState fluid = ctx.getLevel().getFluidState(ctx.getClickedPos());
+		return stateForPlacement.setValue(WATERLOGGED, fluid.getType()==Fluids.WATER);
+	}
 	@Override public void onCaughtFire(BlockState state, Level world, BlockPos pos, @Nullable Direction face, @Nullable LivingEntity igniter){
 		explode(world, pos, igniter, 80);
 	}
 
 	@Override public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving){
-		if(!oldState.is(state.getBlock())){
-			if(level.hasNeighborSignal(pos)){
-				onCaughtFire(state, level, pos, null, null);
-				level.removeBlock(pos, false);
-			}
+		if(!oldState.is(state.getBlock())&&level.hasNeighborSignal(pos)){
+			onCaughtFire(state, level, pos, null, null);
+			level.removeBlock(pos, false);
 		}
 	}
 
@@ -121,12 +133,6 @@ public abstract class MiningExplosiveBlock extends FaceAttachedHorizontalDirecti
 		if(level.hasNeighborSignal(pos)){
 			onCaughtFire(state, level, pos, null, null);
 			level.removeBlock(pos, false);
-		}
-	}
-
-	@Override public void wasExploded(Level level, BlockPos pos, Explosion explosion){
-		if(!level.isClientSide){
-			explode(level, pos, explosion.getSourceMob(), level.random.nextInt(20)+10);
 		}
 	}
 
@@ -168,7 +174,7 @@ public abstract class MiningExplosiveBlock extends FaceAttachedHorizontalDirecti
 	}
 
 	@Override protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b){
-		b.add(FACING, FACE);
+		b.add(FACING, FACE, WATERLOGGED);
 	}
 
 	@Override public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx){
@@ -187,6 +193,19 @@ public abstract class MiningExplosiveBlock extends FaceAttachedHorizontalDirecti
 				new TextComponent(""+stat.explosionRadius()).withStyle(YELLOW)).withStyle(DARK_AQUA));
 		if(stat.destroyDrop())
 			tooltip.add(new TranslatableComponent("block.minerstoolbox.explosive.tooltip.destroy_drop").withStyle(RED));
+	}
+
+	@Override public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos){
+		if(state.getValue(WATERLOGGED)){
+			level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+		}
+
+		return getConnectedDirection(state).getOpposite()==facing&&!state.canSurvive(level, currentPos) ?
+				Blocks.AIR.defaultBlockState() : state;
+	}
+
+	@Override public FluidState getFluidState(BlockState pState){
+		return pState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(pState);
 	}
 
 	private void explode(Level level, BlockPos pos, @Nullable LivingEntity igniter, int fuse){

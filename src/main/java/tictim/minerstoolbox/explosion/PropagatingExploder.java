@@ -1,24 +1,26 @@
 package tictim.minerstoolbox.explosion;
 
-import com.mojang.datafixers.util.Pair;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.ProtectionEnchantment;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Explosion.BlockInteraction;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.TargetPoint;
@@ -30,7 +32,6 @@ import tictim.minerstoolbox.network.ExplosionMsg;
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public final class PropagatingExploder{
@@ -55,6 +56,7 @@ public final class PropagatingExploder{
 	private final float originForce;
 	private final float radiusSq;
 
+	@Nullable private final Entity sourceEntity;
 	private final Explosion explosion;
 
 	private final ArrayDeque<Cell> cells = new ArrayDeque<>();
@@ -65,6 +67,7 @@ public final class PropagatingExploder{
 		this.maxResistance = explosion.radius;
 		this.originForce = explosion.radius;
 		this.radiusSq = explosion.radius*explosion.radius-.05f;
+		this.sourceEntity = explosion.getExploder();
 		this.explosion = explosion;
 	}
 	public PropagatingExploder(Level level, BlockPos origin, ExplosionStat stat, @Nullable Entity source){
@@ -76,6 +79,7 @@ public final class PropagatingExploder{
 		this.maxResistance = stat.maxResistance();
 		this.originForce = stat.force();
 		this.radiusSq = stat.explosionRadius()*stat.explosionRadius()-.05f;
+		this.sourceEntity = source;
 		this.explosion = new Explosion(level, source instanceof ExplosiveEntity ex ? ex.getOwner() : source, damageSource, damageCalculator,
 				origin.getX()+.5, origin.getY()+.5, origin.getZ()+.5,
 				stat.explosionRadius(), false, stat.destroyDrop() ? BlockInteraction.DESTROY : BlockInteraction.BREAK);
@@ -86,7 +90,8 @@ public final class PropagatingExploder{
 		cells.add(new Cell(origin, originForce, (int)explosion.radius, ALL_DIRECTION));
 
 		ServerLevel serverLevel = this.level instanceof ServerLevel ? (ServerLevel)this.level : null;
-		ArrayList<Pair<BlockPos, BlockState>> toBlow = serverLevel!=null ? new ArrayList<>() : null;
+		ArrayList<BlockPos> toBlow = serverLevel!=null ? new ArrayList<>() : null;
+
 		while(!cells.isEmpty()){
 			Cell cell = cells.removeFirst();
 			if(level.isInWorldBounds(cell.pos)){
@@ -105,20 +110,56 @@ public final class PropagatingExploder{
 					else force -= (res+.3f)*.3f;
 				}
 				if(force>0){
-					if(toBlow!=null&&explosion.damageCalculator.shouldBlockExplode(explosion, level, cell.pos, state, force))
-						toBlow.add(Pair.of(cell.pos, state));
-					if(cell.rangeLeft>0) x(cell, force);
+					boolean shouldExplode = toBlow!=null&&(TEST||!state.isAir())&&explosion.damageCalculator.shouldBlockExplode(explosion, level, cell.pos, state, force);
+					if(shouldExplode) toBlow.add(cell.pos);
+					if(cell.rangeLeft>0&&(shouldExplode||state.isAir())) x(cell, force);
 				}
 			}
 		}
 
-		// TODO damaging entities
+		MinersToolboxNetwork.CHANNEL.send(
+				PacketDistributor.NEAR.with(TargetPoint.p(origin.getX()+.5, origin.getY()+.5, origin.getZ()+.5, 4096, level.dimension())),
+				new ExplosionMsg(origin, explosion.radius, explosion.blockInteraction));
+
+		float entityHitRadius = Math.min(explosion.radius*2, explosion.radius+4); // I believe radius times two is too big
+		int x1 = Mth.floor(origin.getX()-0.5-entityHitRadius);
+		int x2 = Mth.floor(origin.getX()+1.5+entityHitRadius);
+		int y1 = Mth.floor(origin.getY()-0.5-entityHitRadius);
+		int y2 = Mth.floor(origin.getY()+1.5+entityHitRadius);
+		int z1 = Mth.floor(origin.getZ()-0.5-entityHitRadius);
+		int z2 = Mth.floor(origin.getZ()+1.5+entityHitRadius);
+		Vec3 originVec3 = this.explosion.getPosition();
+
+		for(Entity entity : this.level.getEntities(sourceEntity, new AABB(x1, y1, z1, x2, y2, z2),
+				e -> e.isAlive()&&!e.isSpectator()&&!e.ignoreExplosion()&&
+						(!(e instanceof Player player)||(!player.isCreative()||!player.getAbilities().flying))&&
+						(explosion.blockInteraction==BlockInteraction.DESTROY||!(e instanceof ItemEntity)))){
+			double distanceProportion = Math.sqrt(entity.distanceToSqr(originVec3))/entityHitRadius;
+			if(distanceProportion<=1){
+				double x = entity.getX()-originVec3.x;
+				double y = (entity instanceof PrimedTnt ? entity.getY() : entity.getEyeY())-originVec3.y;
+				double z = entity.getZ()-originVec3.z;
+				double dist = Math.sqrt(x*x+y*y+z*z);
+				if(dist!=0){
+					x /= dist;
+					y /= dist;
+					z /= dist;
+					double seenPercent = Explosion.getSeenPercent(originVec3, entity);
+					double what = (1-distanceProportion)*seenPercent;
+					entity.hurt(explosion.getDamageSource(), (int)((what*what+what)/2.0*7.0*entityHitRadius+1.0));
+					double idk = entity instanceof LivingEntity livingEntity ?
+							ProtectionEnchantment.getExplosionKnockbackAfterDampener(livingEntity, what) :
+							what;
+
+					entity.setDeltaMovement(entity.getDeltaMovement().add(x*idk, y*idk, z*idk));
+				}
+			}
+		}
 
 		if(toBlow!=null){
 			DropAccumulator accumulator = new DropAccumulator();
-			for(Pair<BlockPos, BlockState> p : toBlow){
-				BlockPos pos = p.getFirst();
-				BlockState state = p.getSecond();
+			for(BlockPos pos : toBlow){
+				BlockState state = this.level.getBlockState(pos);
 				if(TEST){
 					level.setBlock(pos, origin.equals(pos) ? Blocks.SEA_LANTERN.defaultBlockState() : Blocks.GLASS.defaultBlockState(), 3);
 				}else{
@@ -139,10 +180,6 @@ public final class PropagatingExploder{
 			}
 			accumulator.spawn(this.level);
 		}
-
-		MinersToolboxNetwork.CHANNEL.send(
-				PacketDistributor.NEAR.with(TargetPoint.p(origin.getX()+.5, origin.getY()+.5, origin.getZ()+.5, 4096, level.dimension())),
-				new ExplosionMsg(origin, explosion.radius, explosion.blockInteraction));
 	}
 
 	private void x(Cell cell, float force){
@@ -202,47 +239,4 @@ public final class PropagatingExploder{
 			int rangeLeft,
 			byte directionFlag
 	){}
-
-	public static final class DropAccumulator{
-		private final Long2ObjectMap<Column> map = new Long2ObjectOpenHashMap<>();
-
-		public void accumulate(BlockPos pos, ItemStack stack){
-			map.computeIfAbsent(xz(pos), xz -> new Column()).add(pos, stack);
-		}
-
-		public void spawn(Level level){
-			BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
-			for(Long2ObjectMap.Entry<Column> e : map.long2ObjectEntrySet()){
-				mpos.set(x(e.getLongKey()), e.getValue().minY, z(e.getLongKey()));
-				for(ItemStack stack : e.getValue().stacks)
-					Block.popResource(level, mpos, stack);
-			}
-		}
-
-		private static long xz(BlockPos pos){
-			return Integer.toUnsignedLong(pos.getX())<<32|Integer.toUnsignedLong(pos.getZ());
-		}
-		private static int x(long xz){
-			return (int)(xz >> 32);
-		}
-		private static int z(long xz){
-			return (int)xz;
-		}
-
-		public static final class Column{
-			private int minY = Integer.MAX_VALUE;
-			private final List<ItemStack> stacks = new ArrayList<>();
-
-			public void add(BlockPos pos, ItemStack stack){
-				if(minY>pos.getY()) minY = pos.getY();
-				for(int i = 0; i<stacks.size(); i++){
-					if(ItemEntity.areMergable(stacks.get(i), stack)){
-						stacks.set(i, ItemEntity.merge(stacks.get(i), stack, 64));
-						if(stack.isEmpty()) return;
-					}
-				}
-				stacks.add(stack);
-			}
-		}
-	}
 }
