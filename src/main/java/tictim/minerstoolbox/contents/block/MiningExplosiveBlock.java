@@ -54,35 +54,46 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 public abstract class MiningExplosiveBlock extends FaceAttachedHorizontalDirectionalBlock{
 	// horizontal direction (4) * attach face (3) * april fools shit (2)
 	private static final VoxelShape[] shapes = new VoxelShape[24];
+	private static final SmokePosition[] points = new SmokePosition[12];
 
-	private record FuckingBox(int x1, int y1, int z1, int x2, int y2, int z2){
-		private FuckingBox(int x1, int y1, int z1, int x2, int y2, int z2){
-			this.x1 = Math.min(x1, x2);
-			this.y1 = Math.min(y1, y2);
-			this.z1 = Math.min(z1, z2);
-			this.x2 = Math.max(x1, x2);
-			this.y2 = Math.max(y1, y2);
-			this.z2 = Math.max(z1, z2);
+	public record SmokePosition(FuckingPoint p1, FuckingPoint p2){}
+
+	public record FuckingPoint(double x, double y, double z){
+		public FuckingPoint rotateX(Rotation rotation){
+			return switch(rotation){
+				case NONE -> this;
+				case CLOCKWISE_90 -> new FuckingPoint(x, z, 16-y);
+				case CLOCKWISE_180 -> new FuckingPoint(x, 16-y, 16-z);
+				case COUNTERCLOCKWISE_90 -> new FuckingPoint(x, 16-z, y);
+			};
+		}
+		public FuckingPoint rotateY(Rotation rotation){
+			return switch(rotation){
+				case NONE -> this;
+				case CLOCKWISE_90 -> new FuckingPoint(16-z, y, x);
+				case CLOCKWISE_180 -> new FuckingPoint(16-x, y, 16-z);
+				case COUNTERCLOCKWISE_90 -> new FuckingPoint(z, y, 16-x);
+			};
+		}
+	}
+
+	public record FuckingBox(FuckingPoint p1, FuckingPoint p2){
+		public FuckingBox(FuckingPoint p1, FuckingPoint p2){
+			this.p1 = new FuckingPoint(Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.min(p1.z, p2.z));
+			this.p2 = new FuckingPoint(Math.max(p1.x, p2.x), Math.max(p1.y, p2.y), Math.max(p1.z, p2.z));
+		}
+		public FuckingBox(double x1, double y1, double z1, double x2, double y2, double z2){
+			this(new FuckingPoint(x1, y1, z1), new FuckingPoint(x2, y2, z2));
 		}
 
 		public FuckingBox rotateX(Rotation rotation){
-			return switch(rotation){
-				case NONE -> this;
-				case CLOCKWISE_90 -> new FuckingBox(x1, z1, 16-y1, x2, z2, 16-y2);
-				case CLOCKWISE_180 -> new FuckingBox(x1, 16-y1, 16-z1, x2, 16-y2, 16-z2);
-				case COUNTERCLOCKWISE_90 -> new FuckingBox(x1, 16-z1, y1, x2, 16-z2, y2);
-			};
+			return new FuckingBox(p1.rotateX(rotation), p2.rotateX(rotation));
 		}
 		public FuckingBox rotateY(Rotation rotation){
-			return switch(rotation){
-				case NONE -> this;
-				case CLOCKWISE_90 -> new FuckingBox(16-z1, y1, x1, 16-z2, y2, x2);
-				case CLOCKWISE_180 -> new FuckingBox(16-x1, y1, 16-z1, 16-x2, y2, 16-z2);
-				case COUNTERCLOCKWISE_90 -> new FuckingBox(z1, y1, 16-x1, z2, y2, 16-x2);
-			};
+			return new FuckingBox(p1.rotateY(rotation), p2.rotateY(rotation));
 		}
 		public VoxelShape toShape(){
-			return box(x1, y1, z1, x2, y2, z2);
+			return box(p1.x, p1.y, p1.z, p2.x, p2.y, p2.z);
 		}
 	}
 
@@ -98,13 +109,24 @@ public abstract class MiningExplosiveBlock extends FaceAttachedHorizontalDirecti
 	}
 
 	private static void addShape(AttachFace attachFace, Direction direction, FuckingBox box, FuckingBox aprilBox){
-		shapes[attachFace.ordinal()*4+direction.get2DDataValue()] = rotate(attachFace, direction, box).toShape();
-		shapes[12+attachFace.ordinal()*4+direction.get2DDataValue()] = rotate(attachFace, direction, aprilBox).toShape();
+		int i = attachFace.ordinal()*4+direction.get2DDataValue();
+		shapes[i] = box.rotateX(getRotX(attachFace)).rotateY(getRotY(attachFace, direction)).toShape();
+		shapes[12+i] = aprilBox.rotateX(getRotX(attachFace)).rotateY(getRotY(attachFace, direction)).toShape();
+		points[i] = new SmokePosition(
+				new FuckingPoint(6.5, 1.5, 3).rotateX(getRotX(attachFace)).rotateY(getRotY(attachFace, direction)),
+				new FuckingPoint(9.5, 1.3, 3.5).rotateX(getRotX(attachFace)).rotateY(getRotY(attachFace, direction)));
 	}
-	private static FuckingBox rotate(AttachFace attachFace, Direction direction, FuckingBox box){
+
+	private static Rotation getRotX(AttachFace attachFace){
+		return attachFace==AttachFace.FLOOR ? Rotation.NONE : attachFace==AttachFace.WALL ? Rotation.COUNTERCLOCKWISE_90 : Rotation.CLOCKWISE_180;
+	}
+	private static Rotation getRotY(AttachFace attachFace, Direction direction){
 		int rot = (int)(attachFace==AttachFace.CEILING||attachFace==AttachFace.WALL ? direction : direction.getOpposite()).toYRot();
-		return box.rotateX(attachFace==AttachFace.FLOOR ? Rotation.NONE : attachFace==AttachFace.WALL ? Rotation.COUNTERCLOCKWISE_90 : Rotation.CLOCKWISE_180)
-				.rotateY(rot==0 ? Rotation.NONE : rot==90 ? Rotation.CLOCKWISE_90 : rot==180 ? Rotation.CLOCKWISE_180 : Rotation.COUNTERCLOCKWISE_90);
+		return rot==0 ? Rotation.NONE : rot==90 ? Rotation.CLOCKWISE_90 : rot==180 ? Rotation.CLOCKWISE_180 : Rotation.COUNTERCLOCKWISE_90;
+	}
+
+	public static SmokePosition getSmokePosition(AttachFace attachFace, Direction direction){
+		return points[attachFace.ordinal()*4+direction.get2DDataValue()];
 	}
 
 	public MiningExplosiveBlock(Properties p){

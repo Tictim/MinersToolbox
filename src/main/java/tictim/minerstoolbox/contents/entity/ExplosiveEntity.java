@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import tictim.minerstoolbox.config.ExplosionStat;
 import tictim.minerstoolbox.config.ExplosionStats;
 import tictim.minerstoolbox.contents.Contents;
+import tictim.minerstoolbox.contents.block.MiningExplosiveBlock;
 import tictim.minerstoolbox.explosion.PropagatingExploder;
 
 import javax.annotation.Nullable;
@@ -108,7 +109,10 @@ public abstract class ExplosiveEntity extends Entity{
 		}else{
 			this.updateInWaterStateAndDoFluidPushing();
 			if(this.level.isClientSide){
-				this.level.addParticle(ParticleTypes.SMOKE, this.getX(), this.getY()+0.5D, this.getZ(), 0.0D, 0.0D, 0.0D);
+				MiningExplosiveBlock.SmokePosition p = MiningExplosiveBlock.getSmokePosition(getAttachFace(), getHorizontalFacing());
+
+				this.level.addParticle(ParticleTypes.SMOKE, this.getX()-.5+p.p1().x()/16, this.getY()+p.p1().y()/16, this.getZ()-.5+p.p1().z()/16, 0, 0, 0);
+				this.level.addParticle(ParticleTypes.SMOKE, this.getX()-.5+p.p2().x()/16, this.getY()+p.p2().y()/16, this.getZ()-.5+p.p2().z()/16, 0, 0, 0);
 			}
 		}
 	}
@@ -121,6 +125,10 @@ public abstract class ExplosiveEntity extends Entity{
 	}
 	@Override public Packet<?> getAddEntityPacket(){
 		return new ClientboundAddEntityPacket(this);
+	}
+
+	@Override public boolean ignoreExplosion(){
+		return true;
 	}
 
 	public static class Crude extends ExplosiveEntity{
