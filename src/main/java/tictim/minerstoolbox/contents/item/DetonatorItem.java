@@ -36,11 +36,14 @@ import org.jetbrains.annotations.Nullable;
 import tictim.minerstoolbox.contents.Contents;
 import tictim.minerstoolbox.contents.block.MiningExplosiveBlock;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@ParametersAreNonnullByDefault
 public class DetonatorItem extends Item{
 	public static final Capability<Data> CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
 
@@ -115,7 +118,7 @@ public class DetonatorItem extends Item{
 		return new Data();
 	}
 
-	public static final class Data implements INBTSerializable<ListTag>, @Nullable ICapabilityProvider{
+	public static final class Data implements INBTSerializable<ListTag>, ICapabilityProvider{
 		private static final int SIZE = 100;
 
 		private final Set<DimPos> posSet = new HashSet<>();
@@ -132,6 +135,10 @@ public class DetonatorItem extends Item{
 				}
 				posList.add(dimPos);
 			}
+		}
+
+		public List<DimPos> positions(){
+			return Collections.unmodifiableList(posList);
 		}
 
 		public void clear(){

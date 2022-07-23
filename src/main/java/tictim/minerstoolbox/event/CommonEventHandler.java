@@ -1,5 +1,7 @@
 package tictim.minerstoolbox.event;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -17,14 +19,17 @@ public class CommonEventHandler{
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void onPlaced(BlockEvent.EntityPlaceEvent event){
 		if(event.getEntity() instanceof Player p&&DetonatorItem.isExplosive(event.getPlacedBlock())){
-			for(int i = 0; i<9; i++){
-				ItemStack item = p.getInventory().getItem(i);
-				if(item.isEmpty()) continue;
-				DetonatorItem.Data data = item.getCapability(DetonatorItem.CAPABILITY).orElse(null);
-				if(data==null) continue;
-				data.add(p.level, event.getBlockSnapshot().getPos());
-			}
+			for(int i = 0; i<9; i++)
+				markExplosive(p, p.getInventory().getItem(i), event.getBlockSnapshot().getPos());
+			markExplosive(p, p.getInventory().getItem(Inventory.SLOT_OFFHAND), event.getBlockSnapshot().getPos());
 		}
+	}
+
+	private static void markExplosive(Player p, ItemStack stack, BlockPos pos){
+		if(stack.isEmpty()) return;
+		DetonatorItem.Data data = stack.getCapability(DetonatorItem.CAPABILITY).orElse(null);
+		if(data==null) return;
+		data.add(p.level, pos);
 	}
 
 	@SubscribeEvent
