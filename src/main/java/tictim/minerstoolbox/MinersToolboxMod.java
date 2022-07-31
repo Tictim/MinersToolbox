@@ -18,6 +18,7 @@ import tictim.minerstoolbox.client.ExplosiveEntityRenderer;
 import tictim.minerstoolbox.client.MaterialInspectorOverlay;
 import tictim.minerstoolbox.contents.Contents;
 import tictim.minerstoolbox.contents.item.DetonatorItem;
+import tictim.minerstoolbox.progressivemining.MiningProgressionTracker;
 
 @Mod(MinersToolboxMod.MODID)
 @Mod.EventBusSubscriber(bus = Bus.MOD)
@@ -75,5 +76,6 @@ public class MinersToolboxMod{
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event){
 		event.register(DetonatorItem.Data.class);
+		event.register(MiningProgressionTracker.class);
 	}
 }

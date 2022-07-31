@@ -35,8 +35,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public final class PropagatingExploder{
-	private static final boolean TEST = false;
-
 	private static final double SQRT_2 = Math.sqrt(2)-1;
 	private static final double SQRT_3 = Math.sqrt(3)-1;
 
@@ -61,6 +59,8 @@ public final class PropagatingExploder{
 
 	private final ArrayDeque<Cell> cells = new ArrayDeque<>();
 
+	private boolean test;
+
 	public PropagatingExploder(Explosion explosion){
 		this.level = explosion.level;
 		this.origin = new BlockPos(explosion.getPosition());
@@ -83,6 +83,13 @@ public final class PropagatingExploder{
 		this.explosion = new Explosion(level, source instanceof ExplosiveEntity ex ? ex.getOwner() : source, damageSource, damageCalculator,
 				origin.getX()+.5, origin.getY()+.5, origin.getZ()+.5,
 				stat.explosionRadius(), false, stat.destroyDrop() ? BlockInteraction.DESTROY : BlockInteraction.BREAK);
+	}
+
+	public boolean isTest(){
+		return test;
+	}
+	public void setTest(boolean test){
+		this.test = test;
 	}
 
 	public void fuckingExplode(){
@@ -110,7 +117,7 @@ public final class PropagatingExploder{
 					else force -= (res+.3f)*.3f;
 				}
 				if(force>0){
-					boolean shouldExplode = toBlow!=null&&(TEST||!state.isAir())&&explosion.damageCalculator.shouldBlockExplode(explosion, level, cell.pos, state, force);
+					boolean shouldExplode = toBlow!=null&&(test||!state.isAir())&&explosion.damageCalculator.shouldBlockExplode(explosion, level, cell.pos, state, force);
 					if(shouldExplode) toBlow.add(cell.pos);
 					if(cell.rangeLeft>0&&(shouldExplode||state.isAir())) x(cell, force);
 				}
@@ -160,7 +167,7 @@ public final class PropagatingExploder{
 			DropAccumulator accumulator = new DropAccumulator();
 			for(BlockPos pos : toBlow){
 				BlockState state = this.level.getBlockState(pos);
-				if(TEST){
+				if(test){
 					level.setBlock(pos, origin.equals(pos) ? Blocks.SEA_LANTERN.defaultBlockState() : Blocks.GLASS.defaultBlockState(), 3);
 				}else{
 					if(state.canDropFromExplosion(this.level, pos, explosion)){

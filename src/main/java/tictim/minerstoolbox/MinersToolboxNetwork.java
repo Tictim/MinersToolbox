@@ -11,7 +11,9 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
+import tictim.minerstoolbox.config.Cfgs;
 import tictim.minerstoolbox.network.ExplosionMsg;
+import tictim.minerstoolbox.network.SyncProgressiveMiningConfigMsg;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -26,11 +28,20 @@ public class MinersToolboxNetwork{
 		CHANNEL.registerMessage(0, ExplosionMsg.class,
 				ExplosionMsg::write, ExplosionMsg::read, MinersToolboxNetwork::handleExplosion,
 				Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+		CHANNEL.registerMessage(1, SyncProgressiveMiningConfigMsg.class,
+				SyncProgressiveMiningConfigMsg::write, SyncProgressiveMiningConfigMsg::read, MinersToolboxNetwork::handleProgressiveMiningConfigMsg,
+				Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 	}
 	private static void handleExplosion(ExplosionMsg msg, Supplier<NetworkEvent.Context> supplier){
 		NetworkEvent.Context ctx = supplier.get();
 		ctx.setPacketHandled(true);
 		ctx.enqueueWork(() -> Client.handleExplosion(msg));
+	}
+
+	private static void handleProgressiveMiningConfigMsg(SyncProgressiveMiningConfigMsg msg, Supplier<NetworkEvent.Context> supplier){
+		NetworkEvent.Context ctx = supplier.get();
+		ctx.setPacketHandled(true);
+		ctx.enqueueWork(() -> Cfgs.setRemoteProgressiveMiningConfig(msg.config()));
 	}
 
 	private static class Client{
