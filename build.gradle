@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'org.parchmentmc:librarian:1.+'
+        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
@@ -17,6 +18,7 @@ plugins {
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
+apply plugin: 'org.spongepowered.mixin'
 
 version = '0.1.0'
 group = 'tictim.minerstoolbox'
@@ -117,6 +119,15 @@ repositories {}
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.60'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+mixin {
+    add sourceSets.main, 'mixins.minerstoolbox.refmap.json'
+    config 'mixins.minerstoolbox.json'
+
+    debug.verbose = true
+    debug.export = true
 }
 
 jar {

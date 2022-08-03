@@ -4,10 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,6 +25,7 @@ public class CommonEventHandler{
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private static void markExplosive(Player p, ItemStack stack, BlockPos pos){
 		if(stack.isEmpty()) return;
 		DetonatorItem.Data data = stack.getCapability(DetonatorItem.CAPABILITY).orElse(null);
@@ -40,17 +38,5 @@ public class CommonEventHandler{
 		if(event.getSource().isExplosion()&&event.getEntity() instanceof Player player&&player.isCreative()){
 			MinersToolboxMod.LOGGER.info("[{}] dmg: {}", player.position(), event.getAmount());
 		}
-	}
-
-	@SubscribeEvent
-	public static void attachChunkCapability(AttachCapabilitiesEvent<LevelChunk> event){
-
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOW)
-	public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event){
-		if(event.getPlayer().isCreative()||event.getPlayer().level.isClientSide) return;
-
-
 	}
 }

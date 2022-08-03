@@ -29,13 +29,16 @@ public final class BlockStateTest{
 		Matcher match = REGEX.matcher(str);
 		if(!match.matches()) return null;
 		String block = match.group(1);
-		Map<String, String> states = Arrays.stream(match.group(2).split(",")).collect(HashMap::new, (m, s) -> {
-			int i = s.indexOf('=');
-			String key = s.substring(0, i);
-			String val = s.substring(i+1);
 
-			m.put(key, val);
-		}, (m, m2) -> {});
+		String g2 = match.group(2);
+		Map<String, String> states = g2==null ? Map.of() :
+				Arrays.stream(g2.split(",")).collect(HashMap::new, (m, s) -> {
+					int i = s.indexOf('=');
+					String key = s.substring(0, i);
+					String val = s.substring(i+1);
+
+					m.put(key, val);
+				}, (m, m2) -> {});
 		return new BlockStateTest(new ResourceLocation(block), states);
 	}
 
@@ -53,6 +56,9 @@ public final class BlockStateTest{
 	public boolean isValid(){
 		return blockCache!=null&&matchingBlockStateCache!=null;
 	}
+	public boolean matchesOnlyOneState(){
+		return isValid()&&matchingBlockStateCache.size()==1;
+	}
 
 	public boolean testState(BlockState state){
 		return isValid()&&state.getBlock()==blockCache&&matchingBlockStateCache.contains(state);
@@ -60,6 +66,10 @@ public final class BlockStateTest{
 
 	@Nullable public Set<BlockState> getMatchingBlockStates(){
 		return matchingBlockStateCache;
+	}
+
+	public boolean hasMatchingBlockStates(){
+		return isValid()&&!matchingBlockStateCache.isEmpty();
 	}
 
 	@Nullable public BlockState getOnlyMatchingBlockState(){

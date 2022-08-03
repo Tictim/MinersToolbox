@@ -47,28 +47,40 @@ public class Cfgs{
 					String ext = FileUtils.fileExtension(path.getFileName());
 					if(!"json".equalsIgnoreCase(ext)) return;
 
+					StringBuilder stb = new StringBuilder();
+					boolean first = true;
+					for(int i = path.getNameCount()-1, j = defaultConfigPath.getNameCount(); i>=j; i--){
+						if(first){
+							stb.append("/");
+							first = false;
+						}
+						stb.append(path.getName(i));
+					}
+					String name = stb.toString();
 					try(var r = Files.newBufferedReader(path)){
-						local.load(path.getFileName().toString(), ProgressiveMiningConfig.LENIENT_GSON.fromJson(r, JsonObject.class));
+						local.load(name, ProgressiveMiningConfig.LENIENT_GSON.fromJson(r, JsonObject.class));
 					}catch(IOException e){
-						MinersToolboxMod.LOGGER.debug("Cannot read file \"{}\": ", path.getFileName().toString(), e);
+						MinersToolboxMod.LOGGER.warn("Cannot read file \"{}\": ", name, e);
 					}
 				});
 			}catch(IOException e){
-				MinersToolboxMod.LOGGER.debug("Cannot load progressive mining config: ", e);
+				MinersToolboxMod.LOGGER.warn("Cannot load progressive mining config: ", e);
 			}
 		}else{
 			try{
 				Files.createDirectories(defaultConfigPath);
 				Files.writeString(defaultConfigPath.resolve("readme.txt"), PROGRESSIVE_MINING_CONFIG_README, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
 			}catch(IOException e){
-				MinersToolboxMod.LOGGER.debug("Cannot generate progressive mining config folder: ", e);
+				MinersToolboxMod.LOGGER.warn("Cannot generate progressive mining config folder: ", e);
 			}
 		}
+		local.updateAndValidate();
+		local.printAllInvalidReasons(MinersToolboxMod.LOGGER);
 		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 		if(server!=null){
 			MinersToolboxNetwork.CHANNEL.send(PacketDistributor.ALL.with(() -> null), new SyncProgressiveMiningConfigMsg(local));
 		}
-		return local.getConfigs().size();
+		return local.getValidRules().size();
 	}
 
 	@SubscribeEvent
@@ -83,6 +95,7 @@ public class Cfgs{
 	}
 
 	public static void setRemoteProgressiveMiningConfig(ProgressiveMiningConfig config){
+		config.updateAndValidate();
 		remote = config;
 	}
 }

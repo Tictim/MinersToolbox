@@ -12,6 +12,8 @@ import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.client.gui.IIngameOverlay;
 import tictim.minerstoolbox.config.ExplosionStats;
 import tictim.minerstoolbox.contents.Contents;
+import tictim.minerstoolbox.progressivemining.MiningProgressionTracker;
+import tictim.minerstoolbox.progressivemining.Progression;
 
 import static net.minecraft.ChatFormatting.*;
 
@@ -32,6 +34,12 @@ public class MaterialInspectorOverlay implements IIngameOverlay{
 					GREEN+""+res+RESET, getExplosionTier(res));
 			//noinspection IntegerDivisionInFloatingPointContext
 			gui.getFont().draw(poseStack, s, width/2-gui.getFont().width(s)/2, height/2+10, 0xFFFFFFFF);
+			// TODO test code please remove
+			Progression progression = MiningProgressionTracker.get(mc.level, pos).get(pos);
+			if(progression==null) return;
+			s = "["+pos.getX()+", "+pos.getY()+", "+pos.getZ()+"] "+progression.substage;
+			//noinspection IntegerDivisionInFloatingPointContext
+			gui.getFont().draw(poseStack, s, width/2-gui.getFont().width(s)/2, height/2+20, 0xFFFFFFFF);
 		}
 	}
 

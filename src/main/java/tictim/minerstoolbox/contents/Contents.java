@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -20,11 +21,13 @@ import tictim.minerstoolbox.contents.entity.ExplosiveEntity;
 import tictim.minerstoolbox.contents.item.DetonatorItem;
 import tictim.minerstoolbox.contents.item.TerrainInspectorItem;
 
+import javax.annotation.Nonnull;
+
 import static tictim.minerstoolbox.MinersToolboxMod.MODID;
 
 public class Contents{
 	public static final CreativeModeTab TAB = new CreativeModeTab(MODID){
-		@Override public ItemStack makeIcon(){
+		@Nonnull @Override public ItemStack makeIcon(){
 			return new ItemStack(CRUDE_EXPLOSIVE_ITEM.get());
 		}
 	};
@@ -68,6 +71,8 @@ public class Contents{
 	public static final RegistryObject<Item> SUPERCALIFRAGILISTICEXPIALIDOCIOUS_EXPLOSIVE_POWDER = ITEMS.register("supercalifragilisticexpialidocious_explosive_powder", () -> new Item(p()));
 
 	public static final RegistryObject<SoundEvent> DETONATOR_SOUND = SOUND_EVENTS.register("detonator", () -> new SoundEvent(new ResourceLocation(MODID, "detonator")));
+
+	public static final LootContextParam<Integer> SUBSTAGE_LOOT_PARAM = new LootContextParam<>(new ResourceLocation(MODID, "substage"));
 
 	private static BlockBehaviour.Properties explosiveProperty(){
 		return BlockBehaviour.Properties.of(Material.EXPLOSIVE).sound(SoundType.GRASS).instabreak().noCollission();

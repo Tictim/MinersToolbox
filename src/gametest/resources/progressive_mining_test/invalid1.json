@@ -1,0 +1,122 @@
+{
+	"rules": [
+		{
+			"block": "nonexistent", // invaild
+			"substages": 8,
+			"loots": {
+				"all": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:stone"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		{
+			"block": "minecraft:stone",
+			"substages": 0, // invalid
+			"loots": {
+				"all": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:stone"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		{
+			"block": "minecraft:stone",
+			"substages": 8,
+			"initial_substage": 0, // invalid
+			"loots": {
+				"all": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:stone"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		{
+			"block": "minecraft:stone",
+			"substages": 8,
+			"initial_substage": 9, // invalid
+			"loots": {
+				"all": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:stone"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		{
+			"block": "minecraft:stone",
+			"substages": 8,
+			"loots": {
+				"all": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:stone"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "nonexistent" // invalid
+		},
+		{
+			"block": "minecraft:stone",
+			"substages": 8,
+			"loots": {
+				"all": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:stone"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "minecraft:water" // invalid
+		}
+	]
+}

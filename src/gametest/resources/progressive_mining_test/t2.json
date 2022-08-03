@@ -1,0 +1,163 @@
+{
+	"rules": [
+		{
+			"block": "minecraft:wheat#age=7",
+			"substages": 100,
+			"loots": {
+				"1": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:wheat"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "minecraft:wheat#age=6"
+		},
+		{
+			"block": "minecraft:wheat#age=6",
+			"substages": 100,
+			"loots": {
+				"1": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:wheat"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "minecraft:wheat#age=5"
+		},
+		{
+			"block": "minecraft:wheat#age=5",
+			"substages": 100,
+			"loots": {
+				"1": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:wheat"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "minecraft:wheat#age=4"
+		},
+		{
+			"block": "minecraft:wheat#age=4",
+			"substages": 100,
+			"loots": {
+				"1": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:wheat"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "minecraft:wheat#age=3"
+		},
+		{
+			"block": "minecraft:wheat#age=3",
+			"substages": 100,
+			"loots": {
+				"1": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:wheat"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "minecraft:wheat#age=2"
+		},
+		{
+			"block": "minecraft:wheat#age=2",
+			"substages": 100,
+			"loots": {
+				"1": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:wheat"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "minecraft:wheat#age=1"
+		},
+		{
+			"block": "minecraft:wheat#age=1",
+			"substages": 100,
+			"loots": {
+				"1": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:wheat"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "minecraft:wheat#age=0"
+		},
+		{
+			"block": "minecraft:wheat#age=0",
+			"substages": 100,
+			"loots": {
+				"1": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:wheat_seeds"
+								}
+							]
+						}
+					]
+				}
+			}
+		}
+	]
+}

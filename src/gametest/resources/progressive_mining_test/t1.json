@@ -1,0 +1,50 @@
+{
+	"rules": [
+		{
+			"block": "minecraft:stone",
+			"substages": 8,
+			"loots": {
+				"all": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:stone"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		{
+			"block": "minecraft:clay",
+			"substages": 4,
+			"initial_substage": {
+				"type": "minecraft:uniform",
+				"value": {
+					"min_inclusive": 1,
+					"max_inclusive": 4
+				}
+			},
+			"loots": {
+				"all": {
+					"pools": [
+						{
+							"rolls": 1,
+							"entries": [
+								{
+									"type": "minecraft:item",
+									"name": "minecraft:clay_ball"
+								}
+							]
+						}
+					]
+				}
+			},
+			"changes_to": "minecraft:water#level=0"
+		}
+	]
+}

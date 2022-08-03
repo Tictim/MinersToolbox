@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"package": "tictim.minerstoolbox.mixin",
+	"refmap": "mixins.minerstoolbox.refmap.json",
+	"minVersion": "0.8",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"MixinBlock"
+	],
+	"client": [
+		"MixinMultiPlayerGameMode"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
